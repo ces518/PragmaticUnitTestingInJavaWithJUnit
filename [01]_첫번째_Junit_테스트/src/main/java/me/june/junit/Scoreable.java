@@ -1,2 +1,6 @@
-package me.june.junit;public interface Scoreable {
+package me.june.junit;
+
+@FunctionalInterface
+public interface Scoreable {
+    int getScore();
 }

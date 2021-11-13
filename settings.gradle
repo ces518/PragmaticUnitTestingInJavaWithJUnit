@@ -1,2 +1,3 @@
 rootProject.name = 'PragmaticUnitTestingInJavaWithJUnit'
+include '[01]_첫번째_Junit_테스트'
 
