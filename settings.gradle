@@ -4,4 +4,5 @@ include '[02]_JUnit_진짜로_써보기'
 include '[03]_JUnit_단언_깊게_파기'
 include '[04]_테스트_조직'
 include '[05]_좋은_테스트의_FIRST_속성'
+include '[06]_Right-BICEP'
 
