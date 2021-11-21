@@ -30,4 +30,12 @@ public class Criterion implements Scoreable {
     public int getScore() {
         return score;
     }
+
+    /**
+     * 리팩토링 올바른 위치로 이동
+     */
+    public boolean matches(Answer answer) {
+        return this.weight == Weight.DontCare ||
+            answer.match(this.answer);
+    }
 }
