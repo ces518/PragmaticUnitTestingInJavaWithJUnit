@@ -27,10 +27,6 @@ public class Profile {
         answers.put(answer.getQuestionText(), answer);
     }
 
-    public int score() {
-        return score;
-    }
-
     /***
      * matches 메소드는 부작용을 포함한다.
      * 함수형 프로그래밍에서 부작용 : 함수 외부의 객체 / 변수의 내용을 변경하는 것
