@@ -54,12 +54,12 @@ public class Profile {
      * -> 성능상 문제가 되지 않는다면 가독성을 최우선시 하라.
      */
     public boolean matches(Criteria criteria) {
-        score = new MatchSet(answers, criteria).getScore();
-
-        if (doesNotMeetAnyMustMatchCriterion(criteria)) {
-            return false;
-        }
-        return anyMatches(criteria);
+        /**
+         * MatchSet 으로 추출한 뒤 score 필드에 값을 저장하는것 자체가 괴리감이 있다.
+         */
+        MatchSet matchSet = new MatchSet(answers, criteria);
+        score = matchSet.getScore();
+        return matchSet.matches();
     }
 
     /**
