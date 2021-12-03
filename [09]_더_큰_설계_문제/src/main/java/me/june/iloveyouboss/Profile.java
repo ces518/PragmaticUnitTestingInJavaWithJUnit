@@ -12,7 +12,8 @@ import java.util.Map;
 */
 public class Profile {
 
-    private Map<String, Answer> answers = new HashMap<>();
+//    private Map<String, Answer> answers = new HashMap<>();
+    private AnswerCollection answers = new AnswerCollection();
     private String name;
 
     public Profile(String name) {
@@ -24,7 +25,7 @@ public class Profile {
     }
 
     public void add(Answer answer) {
-        answers.put(answer.getQuestionText(), answer);
+        answers.add(answer);
     }
 
     /***
@@ -70,7 +71,7 @@ public class Profile {
      */
     private boolean doesNotMeetAnyMustMatchCriterion(Criteria criteria) {
         for (Criterion criterion : criteria) {
-            boolean match = criterion.matches(answerMatching(criterion));
+            boolean match = criterion.matches(answers.answerMatching(criterion));
             if (!match && criterion.getWeight() == Weight.MustMatch) {
                 return true;
             }
@@ -84,16 +85,9 @@ public class Profile {
     private boolean anyMatches(Criteria criteria) {
         boolean anyMatches = false;
         for (Criterion criterion : criteria) {
-            anyMatches |= criterion.matches(answerMatching(criterion));
+            anyMatches |= criterion.matches(answers.answerMatching(criterion));
         }
         return anyMatches;
-    }
-
-    /**
-     * 디미터의 법칙 (이를 메소드로 추출해서 가독성을 향상)
-     */
-    private Answer answerMatching(Criterion criterion) {
-        return answers.get(criterion.getAnswer().getQuestionText());
     }
 
     /**
