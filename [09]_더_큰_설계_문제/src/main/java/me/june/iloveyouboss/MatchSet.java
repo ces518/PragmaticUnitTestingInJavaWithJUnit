@@ -9,15 +9,26 @@ public class MatchSet {
 
     private Map<String, Answer> answers;
     private Criteria criteria;
-    private int score = 0;
 
     public MatchSet(Map<String, Answer> answers, Criteria criteria) {
         this.answers = answers;
         this.criteria = criteria;
-        calculateScore();
+        // MatchSet 생성자에서 score 를 계산하고 있다.
+        // 이 점수를 클라이언트가 사용하지 않는다면 상당한 낭비가 된다.
+        // 생성자에서 실질적인 작업을 피해야 함
+//        calculateScore();
     }
 
+    /**
+     * 점수를 요청할때 지연계산 하도록 변경
+     */
     public int getScore() {
+        int score = 0;
+        for (Criterion criterion : criteria) {
+            if (criterion.matches(answerMatching(criterion))) {
+                score += criterion.getWeight().getValue();
+            }
+        }
         return score;
     }
 
@@ -32,12 +43,12 @@ public class MatchSet {
      * 매칭되는 조건의 가중치를 합해서 점수를 계산
      */
     private void calculateScore() {
-        score = 0;
-        for (Criterion criterion : criteria) {
-            if (criterion.matches(answerMatching(criterion))) {
-                score += criterion.getWeight().getValue();
-            }
-        }
+//        score = 0;
+//        for (Criterion criterion : criteria) {
+//            if (criterion.matches(answerMatching(criterion))) {
+//                score += criterion.getWeight().getValue();
+//            }
+//        }
     }
 
     /**
