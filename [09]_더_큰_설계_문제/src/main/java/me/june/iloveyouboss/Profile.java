@@ -13,7 +13,6 @@ import java.util.Map;
 public class Profile {
 
     private Map<String, Answer> answers = new HashMap<>();
-    private int score;
     private String name;
 
     public Profile(String name) {
@@ -56,10 +55,18 @@ public class Profile {
     public boolean matches(Criteria criteria) {
         /**
          * MatchSet 으로 추출한 뒤 score 필드에 값을 저장하는것 자체가 괴리감이 있다.
+         * score 를 얻어오려면 matches 를 계산해야 한다. CQRS 위반
          */
         MatchSet matchSet = new MatchSet(answers, criteria);
-        score = matchSet.getScore();
+//        score = matchSet.getScore();
         return matchSet.matches();
+    }
+
+    /**
+     * 클라이언트가 원할때 MatchSet 객체를 다루도록 MatchSet 객체를 반환하는 메소드를 추가한다.
+     */
+    public MatchSet getMatchSet(Criteria criteria) {
+        return new MatchSet(answers, criteria);
     }
 
     /**
