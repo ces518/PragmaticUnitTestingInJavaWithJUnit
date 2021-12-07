@@ -22,6 +22,10 @@ public class MatchSet {
 
     /**
      * 점수를 요청할때 지연계산 하도록 변경
+     *
+     * 여전히 Criteria 에서 Criterion 객체를 가져오는 중첩 반복문이 존재한다.
+     * 이런 경우 성능저하 요인이 될 수 있다.
+     * Visitor 패턴을 고려해볼 수 있다. (이 패턴은 특수한 경우 (프록시 객체등) 에만 사용하기 때문에 일반적인 상황에선 사용하지 않는 것을 추천)
      */
     public int getScore() {
         int score = 0;
