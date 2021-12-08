@@ -202,4 +202,88 @@ class Profile {
 - Profile 인터페이스를 변경하면서 기존의 ProfileTest 메소드가 깨지게 되었다.
 - 먼저 이것을 고치도록 노력해야 하며 이는 단위 테스트를 소유하는 비용에 해당한다.
 - 더 나아가 실패하는 테스트의 정보를 부정적인 설계 지표로 인식하는 것도 생각해봐야한다.
-- 더 많은 테스트가 동시에 깨질수록 더욱 더 많은 
+- 더 많은 테스트가 동시에 깨질수록 더욱 더 많은 설계문제가 있을 것 이라는 신호이다.
+
+## 자신을 보호하는 방법
+- 코드 중복은 가장 큰 설계 문제중 하나이다.
+- 테스트 관점에서 여러 테스트에 걸친 코드 중복은 문제가 있다.
+  - 테스트를 따르기가 어려워 진다.
+  - 작은 코드 조각들을 단일 메소드로 추출해 코드 조각을 한군데로 모아야 한다.
+- 단위 테스트를 준비하기 위한 코드가 수십줄이 필요하다면 그것은 시스템 설계에 문제가 있을 수도 있다는 신호이다.
+- SRP 를 위반하면 클래스는 점점 커지고 테스트시에도 더 많은 노력이 요구된다.
+  - 큰 클래스를 분할해야 한다.
+- private 메소드 (세부 구현) 을 테스트할 필요가 있다면 그것은 클래스가 필요 이상으로 커졌다는 의미이다.
+- private 메소드가 자꾸 늘어난다면, 새로운 클래스를 추출하고 public 으로 만드는 것이 좋다.
+
+> 설계를 개선해 단위 테스트를 쉽게 만드는 것이 중요하다. 코드 품질이 낮을수록 단위 테스트 비용이 커진다.
+
+## 다른 설계에 대한 고민들
+- MatchSet 클래스의 생성자는 **점수를 계산하는 작업** 을 수행한다.
+- 계산된 점수를 클라이언트가 사용하지 않는다면, 그것은 낭비가 될 것이다.
+  - 생성자에서는 실질적인 작업을 피해야 한다.
+
+```java
+public class MatchSet {
+
+  private AnswerCollection answers;
+  private Criteria criteria;
+
+  public MatchSet(AnswerCollection answers, Criteria criteria) {
+    this.answers = answers;
+    this.criteria = criteria;
+    // MatchSet 생성자에서 score 를 계산하고 있다.
+    // 이 점수를 클라이언트가 사용하지 않는다면 상당한 낭비가 된다.
+    // 생성자에서 실질적인 작업을 피해야 함
+//        calculateScore();
+  }
+
+  /**
+   * 점수를 요청할때 지연계산 하도록 변경
+   */
+  public int getScore() {
+    int score = 0;
+    for (Criterion criterion : criteria) {
+      if (criterion.matches(answers.answerMatching(criterion))) {
+        score += criterion.getWeight().getValue();
+      }
+    }
+    return score;
+  }
+  // ...
+}
+```
+- score 필드도 사라지고 calculateScore 메소드는 getScore 안으로 인라이닝 되었다.
+- 만약 메소드 호출시 계산을 하는것이 성능 저하로 문제가 된다면 LAZY-INIT 을 사용할 수도 있다.
+- 기존 구현을 보면 Answer 컬렉션을 다루는 부분이 여기저기에 산재되어 있다.
+- 어떻게 답변을 찾고, 점수를 구하는지에 대한 정보를 너무 많이 알고 있다는 의미.
+- 해당 컬렉션을 인메모리가 아닌 DB 로 변경한다거나 하는 일이 생긴다면 여러군데를 고쳐야 한다.
+  - 또한 데이터 상태에도 혼란이 올 수 있다.
+- `AnswerCollection` 이라는 클래스로 이를 추출하여 해결한다.
+
+```java
+/**
+ * Profile 객체가 질문의 내용을 키로 갖는 Map<String, Answer> 객체를 생성한다.
+ * 또한 이를 MatchSet 으로 넘긴다. 즉 답변 객체를 다루는 방법이 여기저기에 혼재되어 있다.
+ * 어떻게 답변을 탐색하고, 점수를 구하는지에 대한 정보를 너무 많이 가지고 있다.
+ * 여러 클래스에 구현의 상태가 흩어져 있을때의 코드 냄새를 기능의 산재라고 한다.
+ * 만약 인메모리가 아닌, DB 로 통해 관리하게 되는등 작업이 필요해 진다면 고칠 부분이 너무 많아진다.
+ * 때문에 AnswerCollection 이라는 답변 저장소를 분리한다.
+ */
+public class AnswerCollection {
+
+    private Map<String, Answer> answers = new HashMap<>();
+
+    public void add(Answer answer) {
+        answers.put(answer.getQuestionText(), answer);
+    }
+
+    public Answer answerMatching(Criterion criterion) {
+        return answers.get(criterion.getAnswer().getQuestionText());
+    }
+}
+```
+
+## 정리
+- SRP 와 CQRS 와 같은 커다란 설계 원칙을 기반으로 설계를 개선하는데 집중해야 한다.
+- 설계에 관한 "작은" 개념들과 작은 코드 리팩토링이 어떻게 커다란 차이를 만들어 내는지도 이해해야 한다.
+- 유연한 설계는 더 작고 잘 조직된 구성요소로 시작된다.
