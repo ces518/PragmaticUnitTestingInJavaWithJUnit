@@ -8,4 +8,5 @@ include '[06]_Right-BICEP'
 include '[07]_CORRECT'
 include '[08]_깔끔한_코드로_리팩토링'
 include '[09]_더_큰_설계_문제'
+include '[10]_목_객체_사용'
 
