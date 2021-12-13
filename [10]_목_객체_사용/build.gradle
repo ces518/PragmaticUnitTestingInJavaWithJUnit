@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group 'me.june'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+// https://mvnrepository.com/artifact/org.apache.clerezza.ext/org.json.simple
+    implementation 'org.apache.clerezza.ext:org.json.simple:0.4'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+}
+
+test {
+    useJUnitPlatform()
+}
