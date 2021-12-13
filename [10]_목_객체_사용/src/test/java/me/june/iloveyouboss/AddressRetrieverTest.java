@@ -7,7 +7,11 @@ import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 class AddressRetrieverTest {
 
@@ -23,18 +27,28 @@ class AddressRetrieverTest {
     /**
      * 람다를 활용한 스텁 구현
      */
-    Http http = (String url) -> {
-        if (!url.contains("lat=38.000000&lon=-104.000000")) {
-            fail("url" + url + " does not contains correct params");
-        }
-        return MOCK_RESULT;
-    };
+//    Http http = (String url) -> {
+//        if (!url.contains("lat=38.000000&lon=-104.000000")) {
+//            fail("url" + url + " does not contains correct params");
+//        }
+//        return MOCK_RESULT;
+//    };
+
+    @Mock
+    Http http;
+
+    @InjectMocks
+    AddressRetriever retriever;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void answerAppropriateAddressForValidCoordinates() throws Exception {
-        Http http = mock(Http.class);
         when(http.get(contains("lat=38.000000&lon=-104.000000"))).thenReturn(MOCK_RESULT);
-        AddressRetriever retriever = new AddressRetriever(http);
+
         Address address = retriever.retrieve(38.0, -104.0);
 
         assertThat(address.houseNumber, equalTo("324"));
