@@ -2,6 +2,7 @@ package me.june.iloveyouboss;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
@@ -10,8 +11,11 @@ class AddressRetrieverTest {
     /**
      * 람다를 활용한 스텁 구현
      */
-    Http http = (String url) ->
-        "{\"address\":{"
+    Http http = (String url) -> {
+        if (!url.contains("lat=38.000000&lon=-104.000000")) {
+            fail("url" + url + " does not contains correct params");
+        }
+        return "{\"address\":{"
             + "\"house_number\":\"324\","
             + "\"road\":\"North Tejon Street\","
             + "\"city\":\"Colorado Springs\","
@@ -19,7 +23,7 @@ class AddressRetrieverTest {
             + "\"postcode\":\"80903\","
             + "\"country_code\":\"us\"}"
             + "}";
-
+    };
 
     @Test
     void answerAppropriateAddressForValidCoordinates() throws Exception {
