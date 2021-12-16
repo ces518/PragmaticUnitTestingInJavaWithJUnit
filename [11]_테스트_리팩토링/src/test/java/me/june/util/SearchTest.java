@@ -35,14 +35,9 @@ class SearchTest {
      */
     @Test
     public void returnsMatchesShowingContextWhenSearchStringInContent() throws IOException {
-        stream = streamOn("There are certain queer times and occasions "
-            + "in this strange mixed affair we call life when a man "
-            + "takes this whole universe for a vast practical joke, "
-            + "though the wit thereof he but dimly discerns, and more "
-            + "than suspects that the joke is at nobody's expense but "
-            + "his own.");
+        stream = streamOn("1234567890search term1234567890");
         // search
-        Search search = new Search(stream, "practical joke", A_TITLE);
+        Search search = new Search(stream, "search term", A_TITLE);
         search.setSurroundingCharacterCount(10);
 
         search.execute();
@@ -51,7 +46,7 @@ class SearchTest {
         // 추상화를 통해 필수적인 개념을 최대화하고 불필요한 세부사항을 감춘다.
         // 사용자 정의 단언 사용
         assertThat(search.getMatches(), containsMatches(new Match[]{
-            new Match(A_TITLE, "practical joke", "or a vast practical joke, though t")
+            new Match(A_TITLE, "search term", "1234567890search term1234567890")
         }));
 //        assertThat(matches, is(notNullValue())); 프로덕션 코드에서 널을 체크하는것은 맞지만, 테스트에서는 군더더기일 뿐이다.
         assertFalse(search.getMatches().isEmpty());
@@ -63,10 +58,8 @@ class SearchTest {
     @Test
     public void noMatchesReturnedWhenSearchStringNotInContent() throws IOException {
         // negative
-        URLConnection connection =
-            new URL("http://bit.ly/15sYPA7").openConnection();
-        stream = connection.getInputStream();
-        Search search = new Search(stream, "smelt", A_TITLE);
+        stream = streamOn("any text");
+        Search search = new Search(stream, "text that doesn't match", A_TITLE);
 
         search.execute();
 
