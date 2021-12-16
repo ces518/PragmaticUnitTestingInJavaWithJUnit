@@ -2,33 +2,41 @@ package me.june.util;
 
 import static me.june.util.ContainsMatches.containsMatches;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 import java.util.logging.Level;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SearchTest {
 
     private static final String A_TITLE = "1";
+    private InputStream stream;
+
+    @BeforeEach
+    void setUp() {
+        Search.LOGGER.setLevel(Level.OFF);
+    }
+
+    @AfterEach
+    void tearDown() throws IOException {
+        stream.close();
+    }
 
     /**
      * testSearch 는 무엇을 테스트하려는지 아무런 정보도 제공하지 않는다.
      */
     @Test
     public void returnsMatchesShowingContextWhenSearchStringInContent() throws IOException {
-        InputStream stream = streamOn("There are certain queer times and occasions "
+        stream = streamOn("There are certain queer times and occasions "
             + "in this strange mixed affair we call life when a man "
             + "takes this whole universe for a vast practical joke, "
             + "though the wit thereof he but dimly discerns, and more "
@@ -36,7 +44,6 @@ class SearchTest {
             + "his own.");
         // search
         Search search = new Search(stream, "practical joke", A_TITLE);
-        Search.LOGGER.setLevel(Level.OFF);
         search.setSurroundingCharacterCount(10);
         search.execute();
         assertFalse(search.errored());
@@ -53,21 +60,19 @@ class SearchTest {
     }
 
     /**
-     * 테스트에 여러 단언이 존재한다면, 테스트 케이스 두개를 포함하고 있다는 증거
-     * 테스트를 분할해야 한다.
+     * 테스트에 여러 단언이 존재한다면, 테스트 케이스 두개를 포함하고 있다는 증거 테스트를 분할해야 한다.
      */
     @Test
     public void noMatchesReturnedWhenSearchStringNotInContent() throws IOException {
         // negative
         URLConnection connection =
             new URL("http://bit.ly/15sYPA7").openConnection();
-        InputStream stream = connection.getInputStream();
+        stream = connection.getInputStream();
         Search search = new Search(stream, "smelt", A_TITLE);
         search.execute();
         assertTrue(search.getMatches().isEmpty());
         stream.close();
     }
-
 
     private InputStream streamOn(String pageContent) {
         return new ByteArrayInputStream(pageContent.getBytes());
