@@ -39,7 +39,7 @@ class SearchTest {
         search.execute();
         assertFalse(search.errored());
         List<Match> matches = search.getMatches();
-        assertThat(matches, is(notNullValue()));
+//        assertThat(matches, is(notNullValue())); 프로덕션 코드에서 널을 체크하는것은 맞지만, 테스트에서는 군더더기일 뿐이다.
         assertTrue(matches.size() >= 1);
         Match match = matches.get(0);
         assertThat(match.searchString, equalTo("practical joke"));
