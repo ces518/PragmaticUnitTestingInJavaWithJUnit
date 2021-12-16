@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 
 class SearchTest {
 
+    private static final String A_TITLE = "1";
+
     /**
      * testSearch 는 무엇을 테스트하려는지 아무런 정보도 제공하지 않는다.
      */
@@ -34,7 +36,7 @@ class SearchTest {
         byte[] bytes = pageContent.getBytes();
         ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
         // search
-        Search search = new Search(stream, "practical joke", "1");
+        Search search = new Search(stream, "practical joke", A_TITLE);
         Search.LOGGER.setLevel(Level.OFF);
         search.setSurroundingCharacterCount(10);
         search.execute();
@@ -43,7 +45,7 @@ class SearchTest {
         // 추상화를 통해 필수적인 개념을 최대화하고 불필요한 세부사항을 감춘다.
         // 사용자 정의 단언 사용
         assertThat(search.getMatches(), containsMatches(new Match[]{
-            new Match("1", "practical joke", "or a vast practical joke, though t")
+            new Match(A_TITLE, "practical joke", "or a vast practical joke, though t")
         }));
         List<Match> matches = search.getMatches();
 //        assertThat(matches, is(notNullValue())); 프로덕션 코드에서 널을 체크하는것은 맞지만, 테스트에서는 군더더기일 뿐이다.
@@ -54,7 +56,7 @@ class SearchTest {
         URLConnection connection =
             new URL("http://bit.ly/15sYPA7").openConnection();
         InputStream inputStream = connection.getInputStream();
-        search = new Search(inputStream, "smelt", "http://bit.ly/15sYPA7");
+        search = new Search(inputStream, "smelt", A_TITLE);
         search.execute();
         assertTrue(search.getMatches().isEmpty());
         stream.close();
