@@ -56,7 +56,7 @@ class SearchTest {
         InputStream inputStream = connection.getInputStream();
         search = new Search(inputStream, "smelt", "http://bit.ly/15sYPA7");
         search.execute();
-        assertThat(search.getMatches().size(), equalTo(0));
+        assertTrue(search.getMatches().isEmpty());
         stream.close();
     }
 }
