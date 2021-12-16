@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -26,7 +27,7 @@ class SearchTest {
      * testSearch 는 무엇을 테스트하려는지 아무런 정보도 제공하지 않는다.
      */
     @Test
-    public void testSearch() throws IOException {
+    public void returnsMatchesShowingContextWhenSearchStringInContent() throws IOException {
         InputStream stream = streamOn("There are certain queer times and occasions "
             + "in this strange mixed affair we call life when a man "
             + "takes this whole universe for a vast practical joke, "
@@ -49,16 +50,24 @@ class SearchTest {
 //        assertThat(matches, is(notNullValue())); 프로덕션 코드에서 널을 체크하는것은 맞지만, 테스트에서는 군더더기일 뿐이다.
         assertTrue(matches.size() >= 1);
         stream.close();
+    }
 
+    /**
+     * 테스트에 여러 단언이 존재한다면, 테스트 케이스 두개를 포함하고 있다는 증거
+     * 테스트를 분할해야 한다.
+     */
+    @Test
+    public void noMatchesReturnedWhenSearchStringNotInContent() throws IOException {
         // negative
         URLConnection connection =
             new URL("http://bit.ly/15sYPA7").openConnection();
-        InputStream inputStream = connection.getInputStream();
-        search = new Search(inputStream, "smelt", A_TITLE);
+        InputStream stream = connection.getInputStream();
+        Search search = new Search(stream, "smelt", A_TITLE);
         search.execute();
         assertTrue(search.getMatches().isEmpty());
         stream.close();
     }
+
 
     private InputStream streamOn(String pageContent) {
         return new ByteArrayInputStream(pageContent.getBytes());
