@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 import java.util.logging.Level;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,18 +44,17 @@ class SearchTest {
         // search
         Search search = new Search(stream, "practical joke", A_TITLE);
         search.setSurroundingCharacterCount(10);
-        search.execute();
-        assertFalse(search.errored());
 
+        search.execute();
+
+        assertFalse(search.errored());
         // 추상화를 통해 필수적인 개념을 최대화하고 불필요한 세부사항을 감춘다.
         // 사용자 정의 단언 사용
         assertThat(search.getMatches(), containsMatches(new Match[]{
             new Match(A_TITLE, "practical joke", "or a vast practical joke, though t")
         }));
-        List<Match> matches = search.getMatches();
 //        assertThat(matches, is(notNullValue())); 프로덕션 코드에서 널을 체크하는것은 맞지만, 테스트에서는 군더더기일 뿐이다.
-        assertTrue(matches.size() >= 1);
-        stream.close();
+        assertFalse(search.getMatches().isEmpty());
     }
 
     /**
@@ -69,9 +67,10 @@ class SearchTest {
             new URL("http://bit.ly/15sYPA7").openConnection();
         stream = connection.getInputStream();
         Search search = new Search(stream, "smelt", A_TITLE);
+
         search.execute();
+
         assertTrue(search.getMatches().isEmpty());
-        stream.close();
     }
 
     private InputStream streamOn(String pageContent) {
