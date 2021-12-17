@@ -3,15 +3,25 @@ package me.june.iloveyouboss;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ProfileTest {
 
+    private Profile profile;
+    private BooleanQuestion questionIsThereRelocation;
+    private Answer answerThereIsRelocation;
+
+    @BeforeEach
+    void setUp() {
+        profile = new Profile();
+        questionIsThereRelocation = new BooleanQuestion(1, "Relocation Package?");
+        answerThereIsRelocation = new Answer(questionIsThereRelocation, Bool.TRUE);
+    }
+
     @Test
     void matchesNothingWhenProfileEmpty() {
-        Profile profile = new Profile();
-        Question question = new BooleanQuestion(1, "Relocation package?");
-        Criterion criterion = new Criterion(new Answer(question, Bool.TRUE), Weight.DontCare);
+        Criterion criterion = new Criterion(answerThereIsRelocation, Weight.DontCare);
 
         boolean result = profile.matches(criterion);
 
@@ -20,11 +30,8 @@ class ProfileTest {
 
     @Test
     void matchesWhenProfileContainsMatchingAnswer() {
-        Profile profile = new Profile();
-        Question question = new BooleanQuestion(1, "Relocation package?");
-        Answer answer = new Answer(question, Bool.TRUE);
-        profile.add(answer);
-        Criterion criterion = new Criterion(answer, Weight.Important);
+        profile.add(answerThereIsRelocation);
+        Criterion criterion = new Criterion(answerThereIsRelocation, Weight.Important);
 
         boolean result = profile.matches(criterion);
 
