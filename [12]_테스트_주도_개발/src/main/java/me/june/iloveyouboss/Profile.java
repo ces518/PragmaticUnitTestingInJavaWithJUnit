@@ -2,7 +2,13 @@ package me.june.iloveyouboss;
 
 public class Profile {
 
+    private Answer answer;
+
     public boolean matches(Criterion criterion) {
-        return false;
+        return answer != null;
+    }
+
+    public void add(Answer answer) {
+        this.answer = answer;
     }
 }
