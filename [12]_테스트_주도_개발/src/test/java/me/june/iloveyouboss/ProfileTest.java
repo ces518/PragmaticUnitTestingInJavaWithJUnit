@@ -14,6 +14,8 @@ class ProfileTest {
     private Answer answerThereIsRelocation;
     private Answer answerThereIsNotRelocation;
     private Answer answerReimbursesTuition;
+    private Answer answerDoesNotReimburseTuition;
+    private Criteria criteria;
 
     @BeforeEach
     void setUp() {
@@ -23,15 +25,15 @@ class ProfileTest {
         answerThereIsRelocation = new Answer(questionIsThereRelocation, Bool.TRUE);
         answerThereIsNotRelocation = new Answer(questionIsThereRelocation, Bool.FALSE);
         answerReimbursesTuition = new Answer(questionReimbursesTuition, Bool.TRUE);
+        answerDoesNotReimburseTuition = new Answer(questionReimbursesTuition, Bool.FALSE);
+        criteria = new Criteria();
     }
 
     @Test
     void matchesNothingWhenProfileEmpty() {
         Criterion criterion = new Criterion(answerThereIsRelocation, Weight.DontCare);
 
-        boolean result = profile.matches(criterion);
-
-        assertFalse(result);
+        assertFalse(profile.matches(criterion));
     }
 
     @Test
@@ -39,9 +41,7 @@ class ProfileTest {
         profile.add(answerThereIsRelocation);
         Criterion criterion = new Criterion(answerThereIsRelocation, Weight.Important);
 
-        boolean result = profile.matches(criterion);
-
-        assertTrue(result);
+        assertTrue(profile.matches(criterion));
     }
 
     @Test
@@ -50,8 +50,35 @@ class ProfileTest {
         profile.add(answerReimbursesTuition);
         Criterion criterion = new Criterion(answerThereIsRelocation, Weight.Important);
 
-        boolean matches = profile.matches(criterion);
+        assertTrue(profile.matches(criterion));
+    }
 
-        assertTrue(matches);
+    @Test
+    void doesNotMatchWhenNoneOfMultipleCriteriaMatch() {
+        profile.add(answerDoesNotReimburseTuition);
+        criteria.add(new Criterion(answerThereIsRelocation, Weight.Important));
+        criteria.add(new Criterion(answerReimbursesTuition, Weight.Important));
+
+        assertFalse(profile.matches(criteria));
+    }
+
+    @Test
+    void matchesWhenAnyOfMultipleCriteriaMatch() {
+        profile.add(answerThereIsRelocation);
+        criteria.add(new Criterion(answerThereIsRelocation, Weight.Important));
+        criteria.add(new Criterion(answerReimbursesTuition, Weight.Important));
+
+        assertTrue(profile.matches(criteria));
+    }
+
+    @Test
+    void doesNotMatchWhenAnyMustMeetCriteriaNotMet() {
+        profile.add(answerThereIsRelocation);
+        profile.add(answerDoesNotReimburseTuition);
+        criteria.add(new Criterion(answerThereIsRelocation, Weight.Important));
+        criteria.add(new Criterion(answerReimbursesTuition, Weight.Important));
+        criteria.add(new Criterion(answerReimbursesTuition, Weight.MustMatch));
+
+        assertFalse(profile.matches(criteria));
     }
 }

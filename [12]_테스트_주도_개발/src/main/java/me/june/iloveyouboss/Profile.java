@@ -13,6 +13,18 @@ public class Profile {
             answer.match(criterion.getAnswer());
     }
 
+    public boolean matches(Criteria criteria) {
+        boolean matches = false;
+        for (Criterion criterion : criteria) {
+            if (matches(criterion)) {
+                matches = true;
+            } else if (criterion.getWeight() == Weight.MustMatch) {
+                return false;
+            }
+        }
+        return matches;
+    }
+
     public void add(Answer answer) {
         answers.put(answer.getQuestionText(), answer);
     }
