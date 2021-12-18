@@ -8,9 +8,8 @@ public class Profile {
     private Map<String, Answer> answers = new HashMap<>();
 
     public boolean matches(Criterion criterion) {
-        Answer answer = getMatchingProfileAnswer(criterion);
-        return answer != null &&
-            answer.match(criterion.getAnswer());
+        return criterion.getWeight() == Weight.DontCare ||
+            criterion.getAnswer().match(getMatchingProfileAnswer(criterion));
     }
 
     public boolean matches(Criteria criteria) {

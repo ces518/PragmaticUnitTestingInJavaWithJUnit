@@ -30,13 +30,6 @@ class ProfileTest {
     }
 
     @Test
-    void matchesNothingWhenProfileEmpty() {
-        Criterion criterion = new Criterion(answerThereIsRelocation, Weight.DontCare);
-
-        assertFalse(profile.matches(criterion));
-    }
-
-    @Test
     void matchesWhenProfileContainsMatchingAnswer() {
         profile.add(answerThereIsRelocation);
         Criterion criterion = new Criterion(answerThereIsRelocation, Weight.Important);
@@ -80,5 +73,13 @@ class ProfileTest {
         criteria.add(new Criterion(answerReimbursesTuition, Weight.MustMatch));
 
         assertFalse(profile.matches(criteria));
+    }
+
+    @Test
+    void matchesWhenCriterionIsDontCare() {
+        profile.add(answerDoesNotReimburseTuition);
+        Criterion criterion = new Criterion(answerReimbursesTuition, Weight.DontCare);
+
+        assertTrue(profile.matches(criterion));
     }
 }
