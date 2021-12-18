@@ -11,12 +11,14 @@ class ProfileTest {
     private Profile profile;
     private BooleanQuestion questionIsThereRelocation;
     private Answer answerThereIsRelocation;
+    private Answer answerThereIsNotRelocation;
 
     @BeforeEach
     void setUp() {
         profile = new Profile();
         questionIsThereRelocation = new BooleanQuestion(1, "Relocation Package?");
         answerThereIsRelocation = new Answer(questionIsThereRelocation, Bool.TRUE);
+        answerThereIsNotRelocation = new Answer(questionIsThereRelocation, Bool.FALSE);
     }
 
     @Test
