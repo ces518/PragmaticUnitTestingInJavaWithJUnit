@@ -23,18 +23,22 @@ public class ProfileMatcher {
     public void findMatchingProfiles(Criteria criteria, MatchListener listener) {
         ExecutorService executors = Executors.newFixedThreadPool(DEFAULT_POOL_SIZE);
 
-        List<MatchSet> matchSets = profiles.values().stream()
-            .map(p -> p.getMatchSet(criteria))
-            .collect(Collectors.toList());
-        for (MatchSet matchSet : matchSets) {
-            Runnable runnable = () -> {
-                if (matchSet.matches()) {
-                    listener.foundMatch(profiles.get(matchSet.getProfileId()), matchSet);
-                }
-            };
+        for (MatchSet matchSet : collectMatchSets(criteria)) {
+            Runnable runnable = () -> process(listener, matchSet);
             executors.execute(runnable);
         }
         executors.shutdown();
     }
 
+    List<MatchSet> collectMatchSets(Criteria criteria) {
+        return profiles.values().stream()
+            .map(p -> p.getMatchSet(criteria))
+            .collect(Collectors.toList());
+    }
+
+    void process(MatchListener listener, MatchSet matchSet) {
+        if (matchSet.matches()) {
+            listener.foundMatch(profiles.get(matchSet.getProfileId()), matchSet);
+        }
+    }
 }
