@@ -6,9 +6,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +59,36 @@ class ProfileMatcherTest {
         matcher.process(listener, matchSet);
 
         verify(listener).foundMatch(matchingProfile, matchSet);
+    }
+
+    /**
+     * 스레드 로직 테스트
+     */
+    @Test
+    void gathersMatchingProfiles() {
+        Set<String> processedSets = Collections.synchronizedSet(new HashSet<>());
+        BiConsumer<MatchListener, MatchSet> processFunction = (listener, set) -> {
+            processedSets.add(set.getProfileId());
+        };
+        List<MatchSet> matchSets = createMatchSets(100);
+
+        matcher.findMatchingProfiles(criteria, listener, matchSets, processFunction);
+
+        while (!matcher.getExecutors().isTerminated()) {
+
+        }
+        assertThat(
+            processedSets,
+            equalTo(matchSets.stream().map(MatchSet::getProfileId).collect(Collectors.toSet()))
+        );
+    }
+
+    private List<MatchSet> createMatchSets(int count) {
+        List<MatchSet> matchSets = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            matchSets.add(new MatchSet(String.valueOf(i), null, null));
+        }
+        return matchSets;
     }
 
     private Profile createMatchingProfile(String name) {
